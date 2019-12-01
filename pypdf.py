@@ -6,7 +6,7 @@ from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFResourceManager, process_pdf
 import re
 import string
-import numpy
+import os
  
  
 def read_pdf(pdf):
@@ -25,7 +25,7 @@ def read_pdf(pdf):
     return content
 
 def sort_words(strs):
-    f = open("result.txt","w")
+    # f = open("result.txt","w")
     s = re.findall("\w+",str.lower(strs))
     #去除列表中的重复项，并排序
     l = sorted(list(set(s)))
@@ -52,7 +52,33 @@ def sort_words(strs):
     return sorted(pages,key=(lambda x:x[0]),reverse=True)
  
 if __name__ == '__main__':
-    with open('test.pdf', "rb") as my_pdf:
-        data=sort_words(read_pdf(my_pdf))
-        print(data)
-        # print(read_pdf(my_pdf))
+    dirname='./example'
+    # dirname='./test'
+    filenames=list()
+    for root, dirs, files in os.walk(dirname):
+        files = [f for f in files if not f[0] == '.']
+        dirs = [d for d in dirs if not d[0] == '.']
+        for names in files:
+            filenames.append(os.path.join(root,names))
+    total_data=list()
+    for name in filenames:
+        print(name)
+        with open(name, "rb") as my_pdf:
+            # total_content=total_content+read_pdf(my_pdf)
+            content=read_pdf(my_pdf)
+            # total_data.append(sort_words(content))
+            total_data=total_data+sort_words(content)
+            # print(total_content)
+    sum_data=list()
+    for i in range(len(total_data)):
+        if(not total_data[i][1]):
+            continue
+        temp=[total_data[i][0],total_data[i][1]]
+        # print(temp)
+        for j in range(i+1,len(total_data)):
+            if(total_data[i][1]==total_data[j][1]):
+                temp[0]=temp[0]+total_data[j][0]
+                total_data[j][1]=''
+        sum_data.append(temp)
+    sum_data=sorted(sum_data,key=(lambda x:x[0]),reverse=True)
+    print(sum_data)
